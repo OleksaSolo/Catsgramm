@@ -22,4 +22,4 @@ app.include_router(notes.router, prefix='/api')
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello World GoIT Expanded Web"}
+    return {"message": "Hello World GoIT Expanded Web developer"}
