@@ -1,7 +1,10 @@
-from fastapi import FastAPI, Depends, HTTPException
+import redis.asyncio as redis
+from fastapi import FastAPI
+from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
 
-from scr.routes import notes, tags, auth
+from scr.routes import notes, users, tags, auth
+from scr.conf.config import config
 
 app = FastAPI()
 
@@ -16,9 +19,15 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix='/api')
+app.include_router(users.router, prefix="/api")
 app.include_router(tags.router, prefix='/api')
 app.include_router(notes.router, prefix='/api')
 
+@app.on_event("startup")
+async def startup():
+    r = await redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0, encoding="utf-8",
+                          decode_responses=True)
+    await FastAPILimiter.init(r)
 
 @app.get("/")
 def read_root():

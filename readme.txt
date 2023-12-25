@@ -108,6 +108,60 @@ alembic upgrade head
 
 user: admin@ex.ua 567234
 
+Простые шаги для отключения проекта от текущего репозитория
+Если вы хотите отключить свой проект от текущего репозитория, следуйте этим простым шагам:
+
+Откройте терминал или командную строку.
+Перейдите в папку проекта, используя команду cd.
+Скопируйте URL репозитория, с которого вы хотите отключиться.
+Введите команду git remote -v, чтобы увидеть список всех удаленных репозиториев.
+Используйте команду git remote remove [имя репозитория], чтобы удалить ссылку на репозиторий, от которого вы хотите отключиться. Например, если имя удаленного репозитория «origin», введите git remote remove origin.
+Для подтверждения выполните команду git remote -v еще раз и убедитесь, что репозиторий был успешно удален.
+
+module13
+test9095945@meta.ua Q1w2....
+poetry add fastapi-mail
+
+views environ
+import os
+api_key = os.environ.get('API_KEY')
+
+load environ
+from dotenv import load_dotenv
+load_dotenv()
+
+poetry add python-dotenv
+
+.env
+
+src/conf/config.py
+
+Змінюємо моделі та репозиторій (don`t forgot migrations)
+in scr/repository/users.py
+scr/services/email.py
+in scr/services/auth.py
+scr/services/templates/email_template.html
+
+Змінюємо роботу маршрутів
+in scr/routes/auth.py (signup, login, confirmed)
+in scr/services/auth.py (auth_service.get_email_from_token)
+in scr/routes/auth.py (request_email)
+in scr/schemas.py (request_email)
+
+alsol@i.ua 567234
+
+docker-compose up -d
+
+poetry add fastapi-limiter
+in main.py
+in scr/routes/notes.py
+
+ poetry add cloudinary
+ in scr/repository/users.py (update_avatar)
+ scr/routes/users.py
+ in main.py (add users)
+
+
 
 
 

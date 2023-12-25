@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 
 from scr.database.db import get_db
@@ -13,12 +14,17 @@ from scr.services.auth import auth_service
 router = APIRouter(prefix='/notes', tags=["notes"])
 
 
-@router.get("/", response_model=List[NoteResponse])
+# @router.get("/", response_model=List[NoteResponse])
+# async def read_notes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db),
+#                      current_user: User = Depends(auth_service.get_current_user)):
+#     notes = await repository_notes.get_notes(skip, limit, current_user, db)
+#     return notes
+@router.get("/", response_model=List[NoteResponse], description='No more than 2 requests per 5 sec',
+            dependencies=[Depends(RateLimiter(times=2, seconds=10))])
 async def read_notes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db),
                      current_user: User = Depends(auth_service.get_current_user)):
     notes = await repository_notes.get_notes(skip, limit, current_user, db)
     return notes
-
 
 @router.get("/{note_id}", response_model=NoteResponse)
 async def read_note(note_id: int, db: Session = Depends(get_db),
