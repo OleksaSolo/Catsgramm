@@ -150,7 +150,7 @@ in scr/schemas.py (request_email)
 
 alsol@i.ua 567234
 
-docker-compose up -d
+docker-compose up -d  (rest-app, redis-cache)
 
 poetry add fastapi-limiter
 in main.py
@@ -161,6 +161,22 @@ in scr/routes/notes.py
  scr/routes/users.py
  in main.py (add users)
 
+Modele 14
+
+plagin PyCharm Trelent - AI Docstrings on Demand (alt+D in funktion)
+poetry add sphinx -G dev
+sphinx-quickstart docs (quetions)
+cd docs
+edit docs/conf.py
+edit docs/index.rst
+
+test14@ua.fm 567234
+
+testing
+
+md tests
+tests\test_unit_repository_notes.py
+python -m unittest .\tests\test_unit_repository_notes.py
 
 
 

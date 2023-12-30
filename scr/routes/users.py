@@ -32,25 +32,38 @@ cloudinary.config(
 )
 
 
-@router.get(
-    "/me",
-    response_model=UserResponse,
-    dependencies=[Depends(RateLimiter(times=1, seconds=20))],
-)
+@router.get("/me", response_model=UserResponse, dependencies=[Depends(RateLimiter(times=1, seconds=20))],)
 async def get_current_user(user: User = Depends(auth_service.get_current_user)):
+    """
+    The get_current_user function is a dependency that will be injected into the
+        get_current_user endpoint. It uses the auth_service to retrieve the current user,
+        and returns it if found.
+
+    :param user: User: Get the current user
+    :return: The current user, which is stored in the dependency
+    :doc-author: Trelent
+    """
     return user
 
 
-@router.patch(
-    "/avatar",
-    response_model=UserResponse,
-    dependencies=[Depends(RateLimiter(times=1, seconds=20))],
-)
+@router.patch("/avatar", response_model=UserResponse, dependencies=[Depends(RateLimiter(times=1, seconds=20))],)
 def get_current_user(
     file: UploadFile = File(),
     user: User = Depends(auth_service.get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    The get_current_user function is a dependency that returns the current user.
+    It will be used by FastAPI to validate the token and get its associated user.
+
+
+    :param file: UploadFile: Get the file from the request
+    :param user: User: Get the user object from the database
+    :param db: AsyncSession: Create a database session
+    :param : Get the current user from the database
+    :return: The current user, based on the token
+    :doc-author: Trelent
+    """
     public_id = f"Web16/{user.email}"
     res = cloudinary.uploader.upload(file.file, public_id=public_id, owerite=True)
     print(res)

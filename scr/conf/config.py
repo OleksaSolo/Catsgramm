@@ -24,11 +24,10 @@ class Settings(BaseSettings):
     CLD_NAME: str
     CLD_API_KEY: str
     CLD_API_SECRET: str
-
     # class Config:
     #     env_file = ".env"
     #     env_file_encoding = "utf-8"
-
     model_config = ConfigDict(extra='ignore', env_file=".env", env_file_encoding="utf-8")  # noqa
+
 
 config = Settings()

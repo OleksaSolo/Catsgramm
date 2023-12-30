@@ -2,7 +2,6 @@ import redis.asyncio as redis
 from fastapi import FastAPI
 from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
-
 from scr.routes import notes, users, tags, auth
 from scr.conf.config import config
 
