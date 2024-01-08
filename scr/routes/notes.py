@@ -78,9 +78,9 @@ async def create_note(
     :doc-author: Trelent
     """
 
-    print(f"body = {body} \n")
-    print(f"db = {db} \n")
-    print(f"current_user = {current_user} \n")
+    # print(f"body = {body} \n")
+    # print(f"db = {db} \n")
+    # print(f"current_user = {current_user} \n")
     return await repository_notes.create_note(body, current_user, db)
 
 

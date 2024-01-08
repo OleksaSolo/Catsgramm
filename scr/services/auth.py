@@ -1,5 +1,6 @@
 from typing import Optional
 
+import redis
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -9,13 +10,19 @@ from sqlalchemy.orm import Session
 
 from scr.database.db import get_db
 from scr.repository import users as repository_users
-
+from scr.conf.config import config
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     SECRET_KEY = "secret_key"
     ALGORITHM = "HS256"
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+    cache = redis.Redis(
+        host=config.REDIS_HOST,
+        port=config.REDIS_PORT,
+        db=0,
+        password=config.REDIS_PASSWORD,
+    )
 
     def verify_password(self, plain_password, hashed_password):
         """

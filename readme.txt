@@ -178,6 +178,11 @@ md tests
 tests\test_unit_repository_notes.py
 python -m unittest .\tests\test_unit_repository_notes.py
 
+poetry add pytest -G dev
+poetry add httpx
+
+pytest tests/ -s
+
 
 
 

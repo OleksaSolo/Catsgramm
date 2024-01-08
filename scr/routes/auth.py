@@ -14,6 +14,7 @@ from scr.schemas import UserModel, UserResponse, TokenModel, RequestEmail
 from scr.repository import users as repository_users
 from scr.services.auth import auth_service
 from scr.services.email import send_email
+from scr.conf import messages
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 security = HTTPBearer()
@@ -32,8 +33,8 @@ security = HTTPBearer()
 #     new_user = await repository_users.create_user(body, db)
 #     return {"user": new_user, "detail": "User successfully created"}
 
-@router.post("/signup", response_model=UserResponse, description='No more than 1 requests per 60 sec',
-            dependencies=[Depends(RateLimiter(times=1, seconds=60))], status_code=status.HTTP_201_CREATED)
+@router.post("/signup", response_model=UserResponse, description='No more than 2 requests per 60 sec',
+            dependencies=[Depends(RateLimiter(times=2, seconds=60))], status_code=status.HTTP_201_CREATED)
 async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Request, db: Session = Depends(get_db)):
     """
     The signup function creates a new user in the database.
@@ -52,7 +53,7 @@ async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Re
 
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=messages.ACCOUNT_EXIST)
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repository_users.create_user(body, db)
     background_tasks.add_task(send_email, new_user.email, new_user.username, request.base_url)
@@ -95,11 +96,11 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.INVALID_EMAIL)
     if not user.confirmed:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not confirmed")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.EMAIL_NOT_CONFIRMED)
     if not auth_service.verify_password(body.password, user.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.INVALID_EMAIL)
     # Generate JWT
     access_token = await auth_service.create_access_token(data={"sub": user.email})
     refresh_token = await auth_service.create_refresh_token(data={"sub": user.email})
