@@ -1,2 +1,4 @@
 .env
-GoRestFastAPI/
+.idea
+__pycache__
+
