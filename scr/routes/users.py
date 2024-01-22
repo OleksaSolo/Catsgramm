@@ -1,4 +1,5 @@
 import pickle
+import asyncio
 
 import cloudinary
 import cloudinary.uploader
@@ -43,13 +44,13 @@ async def get_current_user(user: User = Depends(auth_service.get_current_user)):
     :return: The current user, which is stored in the dependency
     :doc-author: Trelent
     """
-    return user
+    return {"user": user, "detail": "User successfully retrieved"}
 
 
 @router.patch("/avatar", response_model=UserResponse, dependencies=[Depends(RateLimiter(times=1, seconds=20))],)
-def get_current_user(
+async def get_current_user(
     file: UploadFile = File(),
-    user: User = Depends(auth_service.get_current_user),
+    user_curr: User = Depends(auth_service.get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -64,12 +65,13 @@ def get_current_user(
     :return: The current user, based on the token
     :doc-author: Trelent
     """
-    public_id = f"Web16/{user.email}"
-    res = cloudinary.uploader.upload(file.file, public_id=public_id, owerite=True)
-    print(res)
+    public_id = f"Web09/{user_curr.email}"
+    res = cloudinary.uploader.upload(file.file, public_id=public_id, overwrite=True)
+    # print(res)
     res_url = cloudinary.CloudinaryImage(public_id).build_url(
         width=250, height=250, crop="fill", version=res.get("version")
     )
-    user = repositories_users.update_avatar_url(user.email, res_url, db)
-    auth_service.cache.set(user.email, pickle.dumps(user))
-    auth_service.cache.expire(user.email, 300)
+    user = await repositories_users.update_avatar_url(user_curr.email, res_url, db)
+    auth_service.cache.set(user_curr.email, pickle.dumps(user_curr))
+    auth_service.cache.expire(user_curr.email, 300)
+    return {"user": user_curr, "detail": "User avatar successfully retrieved"}

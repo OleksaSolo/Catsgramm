@@ -1,3 +1,4 @@
+from typing import Any
 from libgravatar import Gravatar
 from sqlalchemy.orm import Session
 
@@ -16,7 +17,8 @@ async def get_user_by_email(email: str, db: Session) -> User:
     :return: A user object
     :doc-author: Trelent
     """
-    return db.query(User).filter(User.email == email).first()
+    user: Any = db.query(User).filter(User.email == email).first()
+    return user
 
 
 async def create_user(body: UserModel, db: Session) -> User:

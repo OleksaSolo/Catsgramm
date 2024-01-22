@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, func, Table, UniqueConstraint
+import enum
+
+from sqlalchemy import Column, Integer, String, Boolean, func, Table, UniqueConstraint, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime
@@ -11,6 +13,7 @@ note_m2m_tag = Table(
     Base.metadata,
     Column("id", Integer, primary_key=True),
     Column("note_id", Integer, ForeignKey("notes.id", ondelete="CASCADE")),
+    Column("image_id", Integer, ForeignKey("images.id", ondelete="CASCADE")),
     Column("tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE")),
 )
 
@@ -38,6 +41,11 @@ class Tag(Base):
     user = relationship('User', backref="tags")
 
 
+class Role(enum.Enum):
+    user: str = "user"
+    moderator: str = "moderator"
+    admin: str = "admin"
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
@@ -47,4 +55,40 @@ class User(Base):
     created_at = Column('crated_at', DateTime, default=func.now())
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
+    role = Column("roles", Enum(Role), default=Role.user)
+    active = Column(Boolean, default=False)
     confirmed = Column(Boolean, default=False, nullable=True)
+
+
+class Role(enum.Enum):
+    user: str = "user"
+    moderator: str = "moderator"
+    admin: str = "admin"
+
+class Image(Base):
+    __tablename__ = "images"
+    id = Column(Integer, primary_key=True)
+    owner_id = Column('owner_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
+    url_original = Column(String(255), nullable=False)
+    url_transformed = Column(String(255), nullable=True)
+    url_original_qr = Column(String(255), nullable=False)
+    url_transformed_qr = Column(String(255), nullable=True)
+    tags = relationship("Tag", secondary=note_m2m_tag, backref="images")
+    description = Column(String(255), nullable=True)
+    created_at = Column('crated_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime)
+    owner = relationship("User", backref="images")
+
+    def json(self):
+        return {
+            "id": self.id,
+            "owner_id": self.owner_id,
+            "url_original": self.url_original,
+            "url_transformed": self.url_transformed,
+            "url_original_qr": self.url_original_qr,
+            "url_transformed_qr": self.url_transformed_qr,
+            "tags": [tag.name for tag in self.tags],
+            "description": self.description,
+            "created_at": self.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
+            "updated_at": self.updated_at.strftime("%Y-%m-%dT%H:%M:%S")
+        }

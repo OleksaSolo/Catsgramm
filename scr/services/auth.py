@@ -1,21 +1,27 @@
-from typing import Optional
+from typing import Optional, Any
 
+import logging
 import redis
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from scr.database.db import get_db
 from scr.repository import users as repository_users
 from scr.conf.config import config
 
+logging.getLogger('passlib').setLevel(logging.ERROR)
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = "secret_key"
-    ALGORITHM = "HS256"
+    SECRET_KEY = config.SECRET_KEY_JWT
+    ALGORITHM = config.ALGORITHM
+    # SECRET_KEY = "secret_key"
+    # ALGORITHM = "HS256"
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
     cache = redis.Redis(
         host=config.REDIS_HOST,
@@ -139,16 +145,21 @@ class Auth:
         try:
             # Decode JWT
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+            # print(f"payload = {payload} \n")
+            email: Any = payload["sub"]
             if payload['scope'] == 'access_token':
-                email = payload["sub"]
+                # email = payload["sub"]
                 if email is None:
                     raise credentials_exception
             else:
                 raise credentials_exception
+        except ValidationError as exc:
+            print(repr(exc.errors()[0]['type']))
         except JWTError as e:
             raise credentials_exception
-
+        # print(f"email = {email} \n")
         user = await repository_users.get_user_by_email(email, db)
+        # print(f"user = {user} \n")
         if user is None:
             raise credentials_exception
         return user
@@ -186,7 +197,7 @@ class Auth:
             email = payload["sub"]
             return email
         except JWTError as e:
-            print(e)
+            print(f"Error: {e}")
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                               detail="Invalid token for email verification")
 

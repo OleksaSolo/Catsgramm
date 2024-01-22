@@ -164,6 +164,7 @@ in scr/routes/notes.py
 Modele 14
 
 plagin PyCharm Trelent - AI Docstrings on Demand (alt+D in funktion)
+
 poetry add sphinx -G dev
 sphinx-quickstart docs (quetions)
 cd docs
@@ -181,10 +182,17 @@ python -m unittest .\tests\test_unit_repository_notes.py
 poetry add pytest -G dev
 poetry add httpx
 
+poetry add pytest_asyncio
+
 pytest tests/ -s
 
 
+Cloudinary
 
+poetry add cloudinary
 
+ "username": "test14",
+  "email": "test14@ex.ua",
+  "password": "567234"
 
 

@@ -2,7 +2,7 @@ import redis.asyncio as redis
 from fastapi import FastAPI
 from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
-from scr.routes import notes, users, tags, auth
+from scr.routes import notes, users, tags, auth, cloud
 from scr.conf.config import config
 
 app = FastAPI()
@@ -21,6 +21,7 @@ app.include_router(auth.router, prefix='/api')
 app.include_router(users.router, prefix="/api")
 app.include_router(tags.router, prefix='/api')
 app.include_router(notes.router, prefix='/api')
+app.include_router(cloud.router, prefix='/api')
 
 @app.on_event("startup")
 async def startup():

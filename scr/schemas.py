@@ -1,5 +1,7 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
+
+from fastapi import UploadFile
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -11,7 +13,7 @@ class TagResponse(TagModel):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class NoteBase(BaseModel):
@@ -37,7 +39,7 @@ class NoteResponse(NoteBase):
     tags: List[TagResponse]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserModel(BaseModel):
     username: str = Field(min_length=5, max_length=16)
@@ -53,13 +55,15 @@ class UserDb(BaseModel):
     avatar: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserResponse(BaseModel):
     user: UserDb
     detail: str = "User successfully created"
 
+class User(BaseModel):
+    user: int
 
 class TokenModel(BaseModel):
     access_token: str
@@ -68,4 +72,78 @@ class TokenModel(BaseModel):
 
 class RequestEmail(BaseModel):
     email: EmailStr
+
+class PostCreate(BaseModel):
+    """
+    Створення посту
+    """
+    text: str
+    user: int
+    img: UploadFile
+    description: str
+
+    class ConfigDict:
+        from_attributes = True
+
+
+class PostBase(BaseModel):
+    """
+    Схема опублікування
+    """
+    img: str
+    text: str
+    user: int
+    # img: str = Field(..., title="Світлина")
+    # text: str = Field(..., title="Текст")
+    # tags: Optional[List[str]] = None
+    # user: Optional[int] = None
+
+
+    class ConfigDict:
+        from_attributes = True
+
+
+class PostList(PostBase):
+    """
+    Публікації в списку
+    """
+
+    pub_date: datetime = Field(..., title="Дата публикации")
+
+    class ConfigDict:
+        from_attributes = True
+
+
+class PostBaseCreateUpdate(PostBase):
+    """
+    Схема створення/редагування посту
+    """
+    user: Union[User, int]
+
+class PostCreate(PostBaseCreateUpdate):
+    """
+    Створення посту
+    """
+    user: int
+
+
+class PostUpdate(PostBaseCreateUpdate):
+    """
+    Редагування посту
+    """
+
+
+class PostSingle(PostBase):
+    img: str
+    text: str
+    user: str
+    id: int
+    owner_id: int
+    url_original: str
+    tags: List[str]
+    description: Optional[str]
+    pub_date: datetime
+
+    class ConfigDict:
+        from_attributes = True
 
