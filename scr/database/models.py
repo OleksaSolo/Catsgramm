@@ -41,6 +41,18 @@ class Tag(Base):
     user = relationship('User', backref="tags")
 
 
+class Comment(Base):
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key=True)
+    comment = Column(String(255), nullable=False)
+    image_id = Column('image_id', ForeignKey('images.id', ondelete='CASCADE'), default=None)
+    owner_id = Column('owner_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
+    created_at = Column('crated_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
+    owner = relationship("User", backref="comments")
+    image = relationship("Image", backref="comments")
+
+
 class Role(enum.Enum):
     user: str = "user"
     moderator: str = "moderator"
