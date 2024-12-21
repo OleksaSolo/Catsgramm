@@ -144,6 +144,108 @@ async def upload_images_user(
         logging.error(f"Помилка завантаження зображення: {e}")
         raise
 
+# @router.post("/publication",
+#                    response_model=PostSingle,
+#                    response_model_exclude_unset=True,
+#                    dependencies=[Depends(allowed_operation_create)])
+# async def upload_images_user(
+#         file: UploadFile = File(),
+#         text: str = Form(...),
+#         tags: List[str] = Form([]),
+#         current_user: UserDb = Depends(auth_service.get_current_user),
+#         db: Session = Depends(get_db),
+# ):
+#     """
+#     The upload_images_user function uploads an image to the Cloudinary cloud storage service.
+#     The function also saves the image's metadata in a PostgreSQL database.
+#
+#
+#     :param file: UploadFile: Receive the file from the user
+#     :param text: str: Get the description of the image
+#     :param tags: List[str]: Get a list of tags from the form
+#     :param current_user: UserDb: Get the current user
+#     :param db: Session: Access the database
+#     :param : Get the current user
+#     :return: The following data:
+#     :doc-author: Trelent
+#     """
+#     try:
+#         img_content = await file.read()
+#         public_id = f"image_{current_user.id}_{uuid.uuid4()}"
+#
+#         # Завантаження на Cloudinary
+#         response = cloudinary.uploader.upload(
+#             img_content, public_id=public_id, overwrite=True, folder="publication"
+#         )
+#
+#         # Зберігання в базі даних
+#         image = Image(
+#             owner_id=current_user.id,
+#             url_original=response["secure_url"],
+#             description=text,
+#             url_original_qr="",
+#             updated_at=datetime.now(),
+#         )
+#         #
+#         # # Розділення тегів та перевірка кількості
+#         # for tags_str in tags:
+#         #     tag_list = tags_str.split(",")
+#         #     tag_count = len(tag_list)
+#         #     print(f"Кількість тегів: {tag_count}")
+#         #
+#         #     if tag_count > 5:
+#         #         raise HTTPException(
+#         #             status_code=400, detail="Максимальна кількість тегів - 5"
+#         #         )
+#         #
+#         #     for tag_name in tag_list:
+#         #         tag_name = tag_name.strip()
+#         #
+#         #         # Чи існує тег з таким іменем
+#         #         tag = db.query(Tag).filter_by(name=tag_name).first()
+#         #         if tag is None:
+#         #             # Якщо тег не існує, створюємо та зберігаємо
+#         #             tag = Tag(name=tag_name)
+#         #             db.add(tag)
+#         #             db.commit()
+#         #             db.refresh(tag)
+#         #
+#         #         # Перевірка, чи тег вже приєднаний до світлини
+#         #         if tag not in image.tags:
+#         #             image.tags.append(tag)
+#         #
+#         db.add(image)
+#         db.commit()
+#
+#         # інформація про світлину
+#         item = await post_services.get_p(db=db, id=image.id)
+#
+#         if not item:
+#             raise HTTPException(
+#                 status_code=HTTP_404_NOT_FOUND, detail="Запис не знайдений"
+#             )
+#
+#         post_data = {
+#             "id": item.id,
+#             "owner_id": item.owner_id,
+#             "url_original": item.url_original,
+#             "tags": [tag.name for tag in item.tags],
+#             "description": item.description,
+#             "pub_date": item.created_at,
+#             "img": item.url_original,
+#             "text": "",
+#             "user": "",
+#         }
+#
+#         return PostSingle(**post_data)
+#     except HTTPException as e:
+#         logging.error(f"Помилка валідації форми: {e}")
+#         raise
+#     except Exception as e:
+#         logging.error(f"Помилка завантаження зображення: {e}")
+#         raise
+
+
 @router.get("/transformed_image/{image_id}")
 def transform_and_update_image(image_id: str, angle: int = 45, db: Session = Depends(get_db)):
     """
