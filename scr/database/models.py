@@ -39,6 +39,8 @@ class Tag(Base):
     name = Column(String(25), nullable=False)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
     user = relationship('User', backref="tags")
+    # Використовуємо overlaps для уникнення конфлікту
+    images = relationship("Image", secondary="note_m2m_tag", overlaps="notes,tags")
 
 
 class Comment(Base):
@@ -67,7 +69,7 @@ class User(Base):
     created_at = Column('crated_at', DateTime, default=func.now())
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
-    role = Column("roles", Enum(Role), default=Role.user)
+    role = Column("role", Enum(Role), default=Role.user)
     active = Column(Boolean, default=False)
     confirmed = Column(Boolean, default=False, nullable=True)
 
@@ -90,6 +92,8 @@ class Image(Base):
     created_at = Column('crated_at', DateTime, default=func.now())
     updated_at = Column('updated_at', DateTime)
     owner = relationship("User", backref="images")
+    # Використовуємо overlaps для уникнення конфлікту
+    tags = relationship("Tag", secondary="note_m2m_tag", overlaps="notes,tags")
 
     def json(self):
         return {

@@ -5,6 +5,7 @@ from fastapi_limiter.depends import RateLimiter
 from fastapi.middleware.cors import CORSMiddleware
 from scr.routes import notes, users, tags, auth, cloud, comments, posts
 from scr.conf.config import config
+from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
@@ -32,6 +33,17 @@ async def startup():
                           password=config.REDIS_PASSWORD, decode_responses=True)
     await FastAPILimiter.init(r)
 
-@app.get("/")
+#@app.get("/")
+#def read_root():
+#    return {"message": "Hello World! We are present GatsGramm!!!"}
+
+@app.get("/", response_class=HTMLResponse)
 def read_root():
-    return {"message": "Hello World! We are present GatsGramm!!!"}
+    return """
+    <html>
+        <body>
+            <h1>Hello world, Team09 Python16 GoIT present Coursework on FastAPI</h1>
+            <a href="/docs">API Documentation</a>
+        </body>
+    </html>
+    """
