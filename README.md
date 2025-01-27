@@ -1,4 +1,4 @@
 # Catsgramm
  Instagramm for cats
 
-https://catgramm.fly.dev/docs#/
+https://catgramm.fly.dev
