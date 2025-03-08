@@ -1,3 +1,4 @@
+
 import enum
 
 from sqlalchemy import Column, Integer, String, Boolean, func, Table, UniqueConstraint, Enum
